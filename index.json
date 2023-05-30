@@ -9,6 +9,6 @@
     "_links": {
         "repository": "https://github.com/Smoqqqq/database-dump-bundle",
         "origin_template": "smoq/database-dump-bundle:1.0@github.com/Smoqqqq/database-dump-bundle:main",
-        "recipe_template": "https://api.github.com/repos/Smoqqqq/database-dump-bundle/contents/1j1a.student-bundle.1.0.json"
+        "recipe_template": "https://api.github.com/repos/Smoqqqq/database-dump-bundle/contents/database-dump-bundle.1.0.json"
     }
 }
