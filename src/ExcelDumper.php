@@ -1,6 +1,6 @@
 <?php
 
-namespace Smoq\DatabaesDumpBundle;
+namespace Smoq\DatabaseDumpBundle;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Csv;

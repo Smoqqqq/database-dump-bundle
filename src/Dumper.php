@@ -1,6 +1,6 @@
 <?php
 
-namespace Smoq\DatabaesDumpBundle;
+namespace Smoq\DatabaseDumpBundle;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
