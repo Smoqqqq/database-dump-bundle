@@ -1,0 +1,14 @@
+{
+    "manifests": {
+        "smoq/database-dump-bundle": {
+            "manifest": {
+                "bundles": {
+                    "Smoq\\DatabaseDumpBundle\\DatabaseDumpBundle": [
+                        "all"
+                    ]
+                }
+            },
+            "ref": "1ba4d7d984db9ebe95748abdc665eb1e9a669945"
+        }
+    }
+}

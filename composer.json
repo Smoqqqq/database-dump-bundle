@@ -1,0 +1,19 @@
+{
+    "name": "smoq/database-dump-bundle",
+    "type": "symfony-bundle",
+    "version": "1.0",
+    "autoload": {
+        "psr-4": {
+            "Smoq\\DatabaseDumpBundle\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Le Flem Paul",
+            "email": "paul.leflem@icloud.com"
+        }
+    ],
+    "require": {
+        "doctrine/doctrine-bundle": "^2.7"
+    }
+}
