@@ -22,13 +22,13 @@ class ExcelDumper extends Dumper
     /**
      * Dumps the database to an excel file
      * 
-     * @param string $destinationFile the path to save the file to
+     * @param string $destinationFile the path to save the file to. The given file extension MUST be the same as the $format param
      * @param array $exclude the tables to exclude from the dump
      * @param string $format the file format, **excluding the dot**
      * 
      * @return string the filename of the new file
      */
-    public function dumpToFile(string $destinationFile, array $exclude = [], string $format = "xlsx"): string
+    public function dumpToFile(string $destinationFile, array $exclude = [], string $format = "xlsx")
     {
         // Get tables data
         $this->dump($exclude);
@@ -49,12 +49,7 @@ class ExcelDumper extends Dumper
             $this->createSingleSheet($data, $tableName);
         }
 
-        $time = date("d-m-y--h-i");
-        $filename = "{$destinationFile}/{$time}_db_dump.{$format}";
-
-        $this->writer->save($filename);
-
-        return $filename;
+        $this->writer->save($destinationFile);
     }
 
     private function createSingleSheet(array $table, string $sheetName)
