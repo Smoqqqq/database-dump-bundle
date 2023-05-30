@@ -2,11 +2,11 @@
 
 namespace Smoq\DatabaseDumpBundle;
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Csv;
-use PhpOffice\PhpSpreadsheet\Writer\Html;
+use Smoq\DatabaseDumpBundle\Dumper;
 use PhpOffice\PhpSpreadsheet\Writer\Ods;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Html;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ExcelDumper extends Dumper
@@ -37,7 +37,6 @@ class ExcelDumper extends Dumper
         $this->spreadsheet->removeSheetByIndex(0);
 
         $this->writer = match ($format) {
-            "csv" => new Csv($this->spreadsheet),
             "xlsx" => new Xlsx($this->spreadsheet),
             "xls" => new Xls($this->spreadsheet),
             "ods" => new Ods($this->spreadsheet),
@@ -47,6 +46,10 @@ class ExcelDumper extends Dumper
 
         foreach ($this->data as $tableName => $data) {
             $this->createSingleSheet($data, $tableName);
+        }
+
+        if ($format === "html") {
+            $this->writer->writeAllSheets();
         }
 
         $this->writer->save($destinationFile);
