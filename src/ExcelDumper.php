@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * DatabaseDumpBundle - Paul Le Flem <contact@paul-le-flem.fr>
+ */
+
 namespace Smoq\DatabaseDumpBundle;
 
 use Smoq\DatabaseDumpBundle\Dumper;
@@ -11,8 +17,6 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ExcelDumper extends Dumper
 {
-
-    private Csv|Xlsx|Xls|Ods|Html $writer;
     private Spreadsheet $spreadsheet;
 
     private const CELLS = [
@@ -20,13 +24,16 @@ class ExcelDumper extends Dumper
     ];
 
     /**
-     * Dumps the database to an excel file
+     * Dumps the database to a file of the given format, saving it to the specified path.
      * 
      * @param string $destinationFile the path to save the file to. The given file extension MUST be the same as the $format param
      * @param array $exclude the tables to exclude from the dump
-     * @param string $format the file format, **excluding the dot**
-     * 
-     * @return string the filename of the new file
+     * @param string $format the file format, **excluding the dot**.  
+     * available formats: 
+     *  - xlsx
+     *  - xls
+     *  - ods
+     *  - html
      */
     public function dumpToFile(string $destinationFile, array $exclude = [], string $format = "xlsx")
     {
@@ -36,7 +43,7 @@ class ExcelDumper extends Dumper
         $this->spreadsheet = new Spreadsheet();
         $this->spreadsheet->removeSheetByIndex(0);
 
-        $this->writer = match ($format) {
+        $writer = match ($format) {
             "xlsx" => new Xlsx($this->spreadsheet),
             "xls" => new Xls($this->spreadsheet),
             "ods" => new Ods($this->spreadsheet),
@@ -49,30 +56,35 @@ class ExcelDumper extends Dumper
         }
 
         if ($format === "html") {
-            $this->writer->writeAllSheets();
+            $writer->writeAllSheets();
         }
 
-        $this->writer->save($destinationFile);
+        $writer->save($destinationFile);
     }
 
+    /**
+     * @internal 
+     * 
+     * creates a single sheet containing a table
+     */
     private function createSingleSheet(array $table, string $sheetName)
     {
-        if (count($table) > 0) {
-            $sheet = $this->spreadsheet->createSheet();
-            $sheet->setTitle($sheetName);
-
-            $i = 0;
-
-            // Set headers
-            foreach ($table[0] as $key => $value) {
-                $sheet->getCell(self::CELLS[$i])->setValue($key);
-                ++$i;
-            }
-
-            $rowIndex = 2;
-
-            // Fill table
-            $sheet->fromArray($table, null, 'A2', true);
+        if (\count($table) == 0) {
+            return;
         }
+
+        $sheet = $this->spreadsheet->createSheet();
+        $sheet->setTitle($sheetName);
+
+        $i = 0;
+
+        // Set headers
+        foreach ($table[0] as $key => $value) {
+            $sheet->getCell(self::CELLS[$i])->setValue($key);
+            ++$i;
+        }
+
+        // Fill table
+        $sheet->fromArray($table, null, 'A2', true);
     }
 }

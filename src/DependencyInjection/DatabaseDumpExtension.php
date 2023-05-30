@@ -1,5 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * DatabaseDumpBundle - Paul Le Flem <contact@paul-le-flem.fr>
+ */
+
 namespace Smoq\DatabaseDumpBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
