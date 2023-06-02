@@ -15,6 +15,7 @@
     ],
     "require": {
         "doctrine/doctrine-bundle": "^2.7",
-        "phpoffice/phpspreadsheet": "^1.25"
+        "phpoffice/phpspreadsheet": "^1.25",
+        "doctrine/dbal": "^3.6"
     }
 }

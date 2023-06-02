@@ -15,15 +15,17 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
 class Dumper
 {
-    private Connection $conn;
-    private AbstractSchemaManager $schemaManager;
+    protected Connection $conn;
+    protected AbstractSchemaManager $schemaManager;
 
     /** @var Table[] */
     public array $tables;
-
     public array $data;
 
-    public function __construct(private ManagerRegistry $doctrine)
+    public string $filepath;
+    public $file;
+
+    public function __construct(public ManagerRegistry $doctrine)
     {
         $this->conn = $doctrine->getConnection();
         $this->schemaManager = $this->conn->createSchemaManager();
@@ -70,5 +72,46 @@ class Dumper
         }
 
         return $tables;
+    }
+
+    /**
+     * Gets the db schema
+     */
+    public function getSchema()
+    {
+        return $this->schemaManager->introspectSchema()->toSql($this->conn->getDatabasePlatform());
+    }
+
+    /**
+     * Handles file creation & resetting
+     */
+    protected function openFile(string $filepath, bool $overwride)
+    {
+        if (!file_exists($filepath) || $overwride) {
+            $this->filepath = $filepath;
+            $this->file = fopen($filepath, "w");
+            file_put_contents($this->filepath, "");
+        } else {
+            throw new \Exception('Please provide an empty filepath or explicitly set `$overwride` to `true`');
+        }
+    }
+
+    protected function write(string $content)
+    {
+        fwrite($this->file, $content);
+    }
+
+    /**
+     * Saves the SQL Schema to the file
+     */
+    protected function writeSchema()
+    {
+        $schemaRows = $this->getSchema();
+
+        foreach ($schemaRows as $row) {
+            $this->write($row . ";\n");
+        }
+
+        $this->write("\n\n");
     }
 }
