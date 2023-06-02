@@ -10,19 +10,22 @@ namespace Smoq\DatabaseDumpBundle;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 
-class SqlDumper extends Dumper
+/**
+ * Class used to dump the database to an sql file
+ */
+class SqlDumper extends Dumper implements DumperInterface
 {
     private array $dependencyTree = [];
     private array $entityClasses = [];
     private array $joinTables = [];
 
     /**
-     * Generates the .sql file for creating the database,
+     * Generates the .sql file for creating and filling the database with data,
      * and saves it to the given filepath
      */
-    public function dumpToFile(string $filepath, bool $overwride = false)
+    public function dumpToFile(string $filepath, array $exclude = [], bool $overwrite = false)
     {
-        $this->openFile($filepath, $overwride);
+        $this->openFile($filepath, $overwrite);
         $this->writeSchema();
 
         $this->getEntityClasses(dirname(getcwd(), 1) . "/src/Entity", "App\Entity");

@@ -61,6 +61,16 @@ class Dumper
         $this->data[$table->getName()] = $res;
     }
 
+    protected function getTableData(Table $table): array
+    {
+        $sql = "SELECT * FROM {$table->getName()}";
+
+        $query = $this->conn->executeQuery($sql);
+        $data = $query->fetchAllAssociative();
+
+        return $data;
+    }
+
     public function getTableNames(array $exclude): array
     {
         $tables = [];
@@ -85,14 +95,14 @@ class Dumper
     /**
      * Handles file creation & resetting
      */
-    protected function openFile(string $filepath, bool $overwride)
+    protected function openFile(string $filepath, bool $overwrite)
     {
-        if (!file_exists($filepath) || $overwride) {
+        if (!file_exists($filepath) || $overwrite) {
             $this->filepath = $filepath;
             $this->file = fopen($filepath, "w");
             file_put_contents($this->filepath, "");
         } else {
-            throw new \Exception('Please provide an empty filepath or explicitly set `$overwride` to `true`');
+            throw new \Exception('Please provide an empty filepath or explicitly set `$overwrite` to `true`');
         }
     }
 
