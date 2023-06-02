@@ -1,13 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
+/**
+ * DatabaseDumpBundle - Paul Le Flem <contact@paul-le-flem.fr>
+ */
+
 namespace Smoq\DatabaseDumpBundle;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
 
-class  SqlDumper extends Dumper
+class SqlDumper extends Dumper
 {
     private array $dependencyTree = [];
     private array $entityClasses = [];
+    private array $joinTables = [];
 
     /**
      * Generates the .sql file for creating the database,
@@ -23,11 +30,19 @@ class  SqlDumper extends Dumper
         $entities = $this->getEntityOrder();
 
         $this->createEntityInsertStatements($entities);
+        $this->createJoinTablesInsertStatements();
     }
 
     private function createEntityInsertStatements(array $entities)
     {
         foreach ($entities as $entity) {
+            $this->createInsertStatement($entity);
+        }
+    }
+
+    private function createJoinTablesInsertStatements()
+    {
+        foreach ($this->joinTables as $entity) {
             $this->createInsertStatement($entity);
         }
     }
@@ -109,8 +124,6 @@ class  SqlDumper extends Dumper
 
     private function getEntityDependencies(array $entityClasses)
     {
-        $em = $this->doctrine->getManager();
-        dd($em->getClassMetadata("App\Entity\Training"), $em->getClassMetadata("App\Entity\Role\Teacher\Teacher"));
         foreach ($entityClasses as $class) {
             if (!isset($this->dependencyTree[$class])) {
                 $dependencies = $this->getSingleEntityDependencies($class);
@@ -130,14 +143,13 @@ class  SqlDumper extends Dumper
             "table" => $classMetadata->getTableName()
         ];
 
-        if ($class === "App\Entity\Training") {
-            dd($classMetadata->getAssociationMappings());
-        }
-
         foreach ($classMetadata->getAssociationMappings() as $dependency) {
 
             // Handle ManyToMany join tables
-            if ($dependency["type"] === 8) {
+            if ($dependency["type"] === 8 && $dependency["isOwningSide"] && !isset($this->joinTables[$dependency["joinTable"]["name"]])) {
+                $this->joinTables[$dependency["joinTable"]["name"]] = [
+                    "table" => $dependency["joinTable"]["name"]
+                ];
             }
 
             if (!$dependency["inversedBy"] && !$dependency["isOwningSide"]) {
@@ -194,16 +206,16 @@ class  SqlDumper extends Dumper
 
     private function getDependantEntities(array $entity, array $entities, array $called)
     {
-        foreach ($entity["dependencies"] as $key => $dependecy) {
+        foreach ($entity["dependencies"] as $key => $dependency) {
 
             $data = [
                 "class" => $key,
-                "table" => $dependecy["table"]
+                "table" => $dependency["table"]
             ];
 
             if (!in_array($data, $called, true)) {
                 $called[] = $data;
-                [$entities, $called] = $this->getDependantEntities($dependecy, $entities, $called);
+                [$entities, $called] = $this->getDependantEntities($dependency, $entities, $called);
                 $entities[] = $data;
             }
         }
