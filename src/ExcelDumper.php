@@ -19,17 +19,17 @@ class ExcelDumper extends Dumper implements DumperInterface
 {
     /**
      * Dumps the database to a file of the given format, saving it to the specified path.
-     * 
+     *
      * @param string $filepath the path to save the file to. The given file extension MUST be the same as the $format param
      * @param array $exclude the tables to exclude from the dump
-     * @param string $format the file format, **excluding the dot**.  
-     * available formats: 
+     * @param string $format the file format, **excluding the dot**.
+     * available formats:
      *  - xlsx
      *  - xls
      *  - ods
      *  - html
      */
-    public function dumpToFile(string $filepath, array $exclude = [], bool $overwrite)
+    public function dumpToFile(string $filepath, array $exclude = [], bool $overwrite = false)
     {
         $this->openFile($filepath, $overwrite);
 
@@ -55,8 +55,10 @@ class ExcelDumper extends Dumper implements DumperInterface
         // }
 
         foreach ($this->tables as $table) {
-            $data = $this->getTableData($table);
-            $this->createSingleSheet($spreadsheet, $data, $table->getName());
+            if (!\in_array($table->getName(), $exclude)) {
+                $data = $this->getTableData($table);
+                $this->createSingleSheet($spreadsheet, $data, $table->getName());
+            }
         }
 
         if ($format === "html") {
@@ -78,14 +80,15 @@ class ExcelDumper extends Dumper implements DumperInterface
         $sheet = $spreadsheet->createSheet();
         $sheet->setTitle($sheetName);
 
-        // https://gist.github.com/vielhuber/04dc25278b082cb0c81e 
-        // somehow doing ++ on a letter will go to the next alphabetical one, 
+        // https://gist.github.com/vielhuber/04dc25278b082cb0c81e
+        // somehow doing ++ on a letter will go to the next alphabetical one,
         // and go to "AA", "AB"... after that, exactly what I want !
         $letter = "A";
 
         // Set headers
         foreach ($table[0] as $key => $value) {
-            $sheet->getCell(++$letter . "1")->setValue($key);
+            $sheet->getCell($letter . "1")->setValue($key);
+            ++$letter;
         }
 
         // Fill table

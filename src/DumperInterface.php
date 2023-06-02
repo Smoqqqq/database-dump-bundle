@@ -2,6 +2,7 @@
 
 namespace Smoq\DatabaseDumpBundle;
 
-interface DumperInterface {
+interface DumperInterface
+{
     public function dumpToFile(string $filepath, array $exclude, bool $overwrite);
 }

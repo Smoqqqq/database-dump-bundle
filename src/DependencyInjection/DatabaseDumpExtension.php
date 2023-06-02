@@ -13,11 +13,12 @@ use Symfony\Component\Routing\Loader\AnnotationFileLoader;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Routing\Loader\AnnotationClassLoader;
 use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\Routing\Loader\AnnotationDirectoryLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 
-class DatabaseDumpExtension extends Extension implements PrependExtensionInterface
+class DatabaseDumpExtension extends Extension implements PrependExtensionInterface, ExtensionInterface
 {
     public function load(array $configs, ContainerBuilder $container)
     {
@@ -30,7 +31,7 @@ class DatabaseDumpExtension extends Extension implements PrependExtensionInterfa
         // TODO: Implement prepend() method.
     }
 
-    public function getAlias()
+    public function getAlias(): string
     {
         return parent::getAlias();
     }

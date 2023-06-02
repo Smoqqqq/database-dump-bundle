@@ -94,7 +94,7 @@ class SqlDumper extends Dumper implements DumperInterface
             foreach ($row as $col) {
                 if ('string' === gettype($col)) {
                     $sql .= "'" . addslashes($col) . "'";
-                } else if (null === $col) {
+                } elseif (null === $col) {
                     $sql .= "NULL";
                 } else {
                     $sql .= $col;

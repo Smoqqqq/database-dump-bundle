@@ -11,17 +11,17 @@ namespace Smoq\DatabaseDumpBundle;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Smoq\DatabaseDumpBundle\DependencyInjection\DatabaseDumpExtension;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 
 class DatabaseDumpBundle extends Bundle
 {
-
     public function build(ContainerBuilder $container)
     {
         parent::build($container);
         $ext = new DatabaseDumpExtension([], $container);
     }
 
-    public function getContainerExtension()
+    public function getContainerExtension(): ExtensionInterface
     {
         return new DatabaseDumpExtension();
     }

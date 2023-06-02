@@ -34,7 +34,7 @@ class Dumper
 
     /**
      * Get full database as an associative array
-     * 
+     *
      * @param array $exclude the tables to exclude from the dump
      */
     public function dump(array $exclude): array
