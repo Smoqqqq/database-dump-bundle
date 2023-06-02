@@ -16,14 +16,20 @@ use Doctrine\ORM\Mapping\ClassMetadata;
 class SqlDumper extends Dumper implements DumperInterface
 {
     private array $dependencyTree = [];
+    /** @var string[] */
     private array $entityClasses = [];
+    /** @var array{'table': string} */
     private array $joinTables = [];
 
     /**
      * Generates the .sql file for creating and filling the database with data,
      * and saves it to the given filepath
+     * 
+     * @param string $filepath the path to save the file to. The given file extension MUST be the same as the $format param
+     * @param string[] $exclude the tables to exclude from the dump
+     * @param bool $overwrite weither or not to overwrite if the file exists
      */
-    public function dumpToFile(string $filepath, array $exclude = [], bool $overwrite = false)
+    public function dumpToFile(string $filepath, array $exclude = [], bool $overwrite = false): void
     {
         $this->openFile($filepath, $overwrite);
         $this->writeSchema();
@@ -36,14 +42,17 @@ class SqlDumper extends Dumper implements DumperInterface
         $this->createJoinTablesInsertStatements();
     }
 
-    private function createEntityInsertStatements(array $entities)
+    /**
+     * @param mixed[] $entities
+     */
+    private function createEntityInsertStatements(array $entities): void
     {
         foreach ($entities as $entity) {
             $this->createInsertStatement($entity);
         }
     }
 
-    private function createJoinTablesInsertStatements()
+    private function createJoinTablesInsertStatements(): void
     {
         foreach ($this->joinTables as $entity) {
             $this->createInsertStatement($entity);
@@ -69,7 +78,7 @@ class SqlDumper extends Dumper implements DumperInterface
         return $sql;
     }
 
-    private function createInsertStatement(array $entity)
+    private function createInsertStatement(array $entity): void
     {
         $query = $this->conn->executeQuery("SELECT * FROM {$entity["table"]}");
         $data = $query->fetchAllAssociative();
@@ -125,7 +134,7 @@ class SqlDumper extends Dumper implements DumperInterface
         }
     }
 
-    private function getEntityDependencies(array $entityClasses)
+    private function getEntityDependencies(array $entityClasses): void
     {
         foreach ($entityClasses as $class) {
             if (!isset($this->dependencyTree[$class])) {
@@ -136,9 +145,10 @@ class SqlDumper extends Dumper implements DumperInterface
         }
     }
 
-    private function getSingleEntityDependencies(string $class)
+    private function getSingleEntityDependencies(string $class): array
     {
         $em = $this->doctrine->getManager();
+
         /** @var ClassMetadata */
         $classMetadata = $em->getClassMetadata($class);
         $dependencies = [
@@ -168,7 +178,7 @@ class SqlDumper extends Dumper implements DumperInterface
     /**
      * Recursively gets entity classes
      */
-    private function getEntityClasses(string $dir, string $namespace)
+    private function getEntityClasses(string $dir, string $namespace): void
     {
         $files = array_diff(scandir($dir), [".", "..", ".gitignore"]);
 
@@ -185,7 +195,7 @@ class SqlDumper extends Dumper implements DumperInterface
     /**
      * Get the entity order from the dependency tree
      */
-    private function getEntityOrder()
+    private function getEntityOrder(): array
     {
         $entities = [];
         $called = [];
@@ -207,10 +217,9 @@ class SqlDumper extends Dumper implements DumperInterface
         return $entities;
     }
 
-    private function getDependantEntities(array $entity, array $entities, array $called)
+    private function getDependantEntities(array $entity, array $entities, array $called): array
     {
         foreach ($entity["dependencies"] as $key => $dependency) {
-
             $data = [
                 "class" => $key,
                 "table" => $dependency["table"]

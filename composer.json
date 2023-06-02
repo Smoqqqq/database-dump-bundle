@@ -16,9 +16,11 @@
     "require": {
         "doctrine/doctrine-bundle": "^2.7",
         "phpoffice/phpspreadsheet": "^1.25",
-        "doctrine/dbal": "^3.6"
+        "doctrine/dbal": "^3.6",
+        "doctrine/orm": "^2.15"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.17"
+        "friendsofphp/php-cs-fixer": "^3.17",
+        "phpstan/phpstan": "^1.10"
     }
 }

@@ -18,7 +18,7 @@ class DatabaseDumpBundle extends Bundle
     public function build(ContainerBuilder $container)
     {
         parent::build($container);
-        $ext = new DatabaseDumpExtension([], $container);
+        $ext = new DatabaseDumpExtension();
     }
 
     public function getContainerExtension(): ExtensionInterface

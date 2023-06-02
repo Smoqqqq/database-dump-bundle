@@ -20,9 +20,8 @@ class Dumper
 
     /** @var Table[] */
     public array $tables;
-    public array $data;
 
-    public string $filepath;
+    /** @var resource */
     public $file;
 
     public function __construct(public ManagerRegistry $doctrine)
@@ -33,34 +32,8 @@ class Dumper
     }
 
     /**
-     * Get full database as an associative array
-     *
-     * @param array $exclude the tables to exclude from the dump
+     * @return mixed[]
      */
-    public function dump(array $exclude): array
-    {
-        foreach ($this->tables as $table) {
-            if (!\in_array($table->getName(), $exclude)) {
-                $this->dumpTable($table);
-            }
-        }
-
-        return $this->data;
-    }
-
-    /**
-     * [INTERNAL] fills data property with table data
-     */
-    private function dumpTable(Table $table)
-    {
-        $sql = "SELECT * FROM {$table->getName()}";
-
-        $query = $this->conn->executeQuery($sql);
-        $res = $query->fetchAllAssociative();
-
-        $this->data[$table->getName()] = $res;
-    }
-
     protected function getTableData(Table $table): array
     {
         $sql = "SELECT * FROM {$table->getName()}";
@@ -71,6 +44,11 @@ class Dumper
         return $data;
     }
 
+    /**
+     * @param string[] $exclude
+     * 
+     * @return string[]
+     */
     public function getTableNames(array $exclude): array
     {
         $tables = [];
@@ -86,8 +64,10 @@ class Dumper
 
     /**
      * Gets the db schema
+     * 
+     * @return string[]
      */
-    public function getSchema()
+    public function getSchema(): array
     {
         return $this->schemaManager->introspectSchema()->toSql($this->conn->getDatabasePlatform());
     }
@@ -95,18 +75,17 @@ class Dumper
     /**
      * Handles file creation & resetting
      */
-    protected function openFile(string $filepath, bool $overwrite)
+    protected function openFile(string $filepath, bool $overwrite): void
     {
         if (!file_exists($filepath) || $overwrite) {
-            $this->filepath = $filepath;
             $this->file = fopen($filepath, "w");
-            file_put_contents($this->filepath, "");
+            file_put_contents($filepath, "");
         } else {
             throw new \Exception('Please provide an empty filepath or explicitly set `$overwrite` to `true`');
         }
     }
 
-    protected function write(string $content)
+    protected function write(string $content): void
     {
         fwrite($this->file, $content);
     }
@@ -114,7 +93,7 @@ class Dumper
     /**
      * Saves the SQL Schema to the file
      */
-    protected function writeSchema()
+    protected function writeSchema(): void
     {
         $schemaRows = $this->getSchema();
 

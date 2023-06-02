@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Smoq\DatabaseDumpBundle;
 
+use Doctrine\DBAL\Schema\Table;
 use Smoq\DatabaseDumpBundle\Dumper;
 use PhpOffice\PhpSpreadsheet\Writer\Ods;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
@@ -21,20 +22,17 @@ class ExcelDumper extends Dumper implements DumperInterface
      * Dumps the database to a file of the given format, saving it to the specified path.
      *
      * @param string $filepath the path to save the file to. The given file extension MUST be the same as the $format param
-     * @param array $exclude the tables to exclude from the dump
-     * @param string $format the file format, **excluding the dot**.
+     * @param string[] $exclude the tables to exclude from the dump
+     * @param bool $overwrite weither or not to overwrite if the file exists
      * available formats:
      *  - xlsx
      *  - xls
      *  - ods
      *  - html
      */
-    public function dumpToFile(string $filepath, array $exclude = [], bool $overwrite = false)
+    public function dumpToFile(string $filepath, array $exclude = [], bool $overwrite = false): void
     {
         $this->openFile($filepath, $overwrite);
-
-        // Get tables data
-        // $this->dump($exclude);
 
         $spreadsheet = new Spreadsheet();
         $spreadsheet->removeSheetByIndex(0);
@@ -70,8 +68,12 @@ class ExcelDumper extends Dumper implements DumperInterface
 
     /**
      * creates a single sheet containing a table
+     * 
+     * @param SpreadSheet $spreadsheet
+     * @param Table[] $table
+     * @param string $sheetName
      */
-    private function createSingleSheet(SpreadSheet $spreadsheet, array $table, string $sheetName)
+    private function createSingleSheet(SpreadSheet $spreadsheet, array $table, string $sheetName): void
     {
         if (\count($table) == 0) {
             return;
