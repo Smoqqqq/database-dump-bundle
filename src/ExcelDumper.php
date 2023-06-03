@@ -35,7 +35,7 @@ class ExcelDumper extends Dumper implements DumperInterface
      *  - ods
      *  - html
      */
-    public function dumpToFile(string $filepath, array $exclude = [], bool $overwrite = false): void
+    public function dump(string $filepath, array $exclude = [], bool $overwrite = false): void
     {
 
         $format = $this->getFileFormat($filepath);
@@ -62,7 +62,43 @@ class ExcelDumper extends Dumper implements DumperInterface
         $writer->save($filepath);
     }
 
-    private function getFileFormat(string $filepath): string {
+    /**
+     * Dumps the database schema to a file of the given format, saving it to the specified path.
+     *
+     * @param string $filepath the path to save the file to. The given file extension MUST be the same as the $format param
+     * @param bool $overwrite weither or not to overwrite if the file exists
+     * available formats:
+     *  - xlsx
+     *  - xls
+     *  - ods
+     *  - html
+     */
+    public function dumpSchema(string $filepath, bool $overwrite = false): void
+    {
+        $format = $this->getFileFormat($filepath);
+
+        $this->openFile($filepath, $overwrite);
+
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->removeSheetByIndex(0);        // Remove first sheet as it would be empty otherwise
+
+        $writer = $this->getWriterFromFormat($format, $spreadsheet);
+
+        foreach ($this->tables as $table) {
+            $data = $this->getTableColumns($table);
+            $this->createSingleSheet($spreadsheet, $data, $table->getName(), true);
+        }
+
+        // Html writer by default only write the first sheet
+        if (get_class($writer) === Html::class) {
+            $writer->writeAllSheets();
+        }
+
+        $writer->save($filepath);
+    }
+
+    private function getFileFormat(string $filepath): string
+    {
         if (strpos($filepath, ".") === false) {
             throw new MissingFileFormatException("Invalid filepath : not extension was specified.");
         }
@@ -94,7 +130,7 @@ class ExcelDumper extends Dumper implements DumperInterface
      * @param Table[] $table
      * @param string $sheetName
      */
-    private function createSingleSheet(SpreadSheet $spreadsheet, array $table, string $sheetName): void
+    private function createSingleSheet(SpreadSheet $spreadsheet, array $table, string $sheetName, bool $schemaOnly = false): void
     {
         if (\count($table) == 0) {
             return;

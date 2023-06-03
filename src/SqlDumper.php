@@ -34,7 +34,7 @@ class SqlDumper extends Dumper implements DumperInterface
      * @param string[] $exclude the tables to exclude from the dump
      * @param bool $overwrite weither or not to overwrite if the file exists
      */
-    public function dumpToFile(string $filepath, array $exclude = [], bool $overwrite = false): void
+    public function dump(string $filepath, array $exclude = [], bool $overwrite = false): void
     {
         $this->openFile($filepath, $overwrite);
         $this->writeSchema();
@@ -47,6 +47,19 @@ class SqlDumper extends Dumper implements DumperInterface
 
         $this->createEntityInsertStatements($entities);
         $this->createJoinTablesInsertStatements();
+    }
+
+    /**
+     * Generates the .sql file for creating the database schema,
+     * and saves it to the given filepath
+     * 
+     * @param string $filepath the path to save the file to. The given file extension MUST be the same as the $format param
+     * @param bool $overwrite weither or not to overwrite if the file exists
+     */
+    public function dumpSchema(string $filepath, bool $overwrite = false): void
+    {
+        $this->openFile($filepath, $overwrite);
+        $this->writeSchema();
     }
 
     /**

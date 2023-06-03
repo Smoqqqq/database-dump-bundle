@@ -46,21 +46,22 @@ class Dumper
     }
 
     /**
-     * @param string[] $exclude
-     * 
-     * @return string[]
+     * @return mixed[]
      */
-    public function getTableNames(array $exclude): array
+    protected function getTableColumns(Table $table): array
     {
-        $tables = [];
+        $sql = "SHOW COLUMNS FROM `{$table->getName()}`";
 
-        foreach ($this->tables as $table) {
-            if (!\in_array($table->getName(), $exclude)) {
-                $tables[] = $table->getName();
-            }
+        $query = $this->conn->executeQuery($sql);
+        $data = $query->fetchAllAssociative();
+
+        $columns = [];
+
+        foreach ($data as $col) {
+            $columns[$col["Field"]] = null;
         }
 
-        return $tables;
+        return [$columns];
     }
 
     /**
@@ -68,7 +69,7 @@ class Dumper
      * 
      * @return string[]
      */
-    public function getSchema(): array
+    private function getSchema(): array
     {
         return $this->schemaManager->introspectSchema()->toSql($this->conn->getDatabasePlatform());
     }
