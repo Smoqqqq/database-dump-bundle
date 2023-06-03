@@ -9,6 +9,8 @@ declare(strict_types=1);
 namespace Smoq\DatabaseDumpBundle;
 
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\Persistence\ObjectManager;
+use Smoq\DatabaseDumpBundle\ExcludedRequiredDependencyException;
 
 /**
  * Class used to dump the database to an sql file
@@ -20,6 +22,8 @@ class SqlDumper extends Dumper implements DumperInterface
     private array $entityClasses = [];
     /** @var array{'table': string} */
     private array $joinTables = [];
+
+    private ObjectManager $em;
 
     /**
      * Generates the .sql file for creating and filling the database with data,
@@ -34,8 +38,10 @@ class SqlDumper extends Dumper implements DumperInterface
         $this->openFile($filepath, $overwrite);
         $this->writeSchema();
 
+        $this->em = $this->doctrine->getManager();
+
         $this->getEntityClasses(dirname(getcwd(), 1) . "/src/Entity", "App\Entity");
-        $this->getEntityDependencies($this->entityClasses);
+        $this->getEntityDependencies($this->entityClasses, $exclude);
         $entities = $this->getEntityOrder();
 
         $this->createEntityInsertStatements($entities);
@@ -134,29 +140,39 @@ class SqlDumper extends Dumper implements DumperInterface
         }
     }
 
-    private function getEntityDependencies(array $entityClasses): void
+    private function getEntityDependencies(array $entityClasses, array $exclude): void
     {
         foreach ($entityClasses as $class) {
+            $classMetadata = $this->em->getClassMetadata($class);
+
+            // Exclude tables
+            if (\in_array($classMetadata->getTableName(), $exclude, true)) {
+                continue;
+            }
+
             if (!isset($this->dependencyTree[$class])) {
-                $dependencies = $this->getSingleEntityDependencies($class);
+                $dependencies = $this->getSingleEntityDependencies($class, $exclude);
 
                 $this->dependencyTree[$class] = $dependencies;
             }
         }
     }
 
-    private function getSingleEntityDependencies(string $class): array
+    private function getSingleEntityDependencies(string $class, array $exclude): array
     {
-        $em = $this->doctrine->getManager();
-
         /** @var ClassMetadata */
-        $classMetadata = $em->getClassMetadata($class);
+        $classMetadata = $this->em->getClassMetadata($class);
         $dependencies = [
             "dependencies" => [],
             "table" => $classMetadata->getTableName()
         ];
 
         foreach ($classMetadata->getAssociationMappings() as $dependency) {
+            $tableName = $this->em->getClassMetadata($dependency["targetEntity"])->getTableName();
+
+            if (\in_array($tableName, $exclude, true)) {
+                throw new ExcludedRequiredDependencyException("Table '{$tableName}' was excluded but is a dependency of '{$classMetadata->getTableName()}'. Either include it or exclude tables that depends on it.");
+            }
 
             // Handle ManyToMany join tables
             if ($dependency["type"] === 8 && $dependency["isOwningSide"] && !isset($this->joinTables[$dependency["joinTable"]["name"]])) {
@@ -169,7 +185,7 @@ class SqlDumper extends Dumper implements DumperInterface
                 continue;
             }
 
-            $dependencies["dependencies"][$dependency["targetEntity"]] = $this->getSingleEntityDependencies($dependency['targetEntity']);
+            $dependencies["dependencies"][$dependency["targetEntity"]] = $this->getSingleEntityDependencies($dependency['targetEntity'], $exclude);
         }
 
         return $dependencies;
@@ -201,7 +217,6 @@ class SqlDumper extends Dumper implements DumperInterface
         $called = [];
 
         foreach ($this->dependencyTree as $key => $entity) {
-
             $data = [
                 "class" => $key,
                 "table" => $entity["table"]

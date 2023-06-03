@@ -12,6 +12,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
+use Smoq\DatabaseDumpBundle\InvalidFilePathException;
 
 class Dumper
 {
@@ -81,7 +82,7 @@ class Dumper
             $this->file = fopen($filepath, "w");
             file_put_contents($filepath, "");
         } else {
-            throw new \Exception('Please provide an empty filepath or explicitly set `$overwrite` to `true`');
+            throw new InvalidFilePathException('Please provide an empty filepath or explicitly set `$overwrite` to `true`');
         }
     }
 
