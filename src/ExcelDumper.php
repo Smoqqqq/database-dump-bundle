@@ -9,15 +9,14 @@ declare(strict_types=1);
 namespace Smoq\DatabaseDumpBundle;
 
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\ORM\Exception\MissingIdentifierField;
-use Exception;
 use Smoq\DatabaseDumpBundle\Dumper;
 use PhpOffice\PhpSpreadsheet\Writer\Ods;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Html;
-use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Smoq\DatabaseDumpBundle\Exception\MissingFileFormatException;
+use Smoq\DatabaseDumpBundle\Exception\UnknowFormatException;
 
 class ExcelDumper extends Dumper implements DumperInterface
 {

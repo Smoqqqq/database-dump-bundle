@@ -8,9 +8,10 @@ declare(strict_types=1);
 
 namespace Smoq\DatabaseDumpBundle;
 
+use Smoq\DatabaseDumpBundle\Dumper;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\ObjectManager;
-use Smoq\DatabaseDumpBundle\ExcludedRequiredDependencyException;
+use Smoq\DatabaseDumpBundle\Exception\ExcludedRequiredDependencyException;
 
 /**
  * Class used to dump the database to an sql file
