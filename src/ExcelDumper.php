@@ -9,15 +9,21 @@ declare(strict_types=1);
 namespace Smoq\DatabaseDumpBundle;
 
 use Doctrine\DBAL\Schema\Table;
+use Doctrine\ORM\Exception\MissingIdentifierField;
+use Exception;
 use Smoq\DatabaseDumpBundle\Dumper;
 use PhpOffice\PhpSpreadsheet\Writer\Ods;
 use PhpOffice\PhpSpreadsheet\Writer\Xls;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Html;
+use PhpOffice\PhpSpreadsheet\Writer\IWriter;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ExcelDumper extends Dumper implements DumperInterface
 {
+
+    public const ACCEPTED_FILE_FORMATS = ["xlsx", "xls", "ods", "html"];
+
     /**
      * Dumps the database to a file of the given format, saving it to the specified path.
      *
@@ -32,25 +38,15 @@ class ExcelDumper extends Dumper implements DumperInterface
      */
     public function dumpToFile(string $filepath, array $exclude = [], bool $overwrite = false): void
     {
+
+        $format = $this->getFileFormat($filepath);
+
         $this->openFile($filepath, $overwrite);
 
         $spreadsheet = new Spreadsheet();
-        $spreadsheet->removeSheetByIndex(0);
+        $spreadsheet->removeSheetByIndex(0);        // Remove first sheet as it would be empty otherwise
 
-        $format = explode(".", $filepath);
-        $format = $format[count($format) - 1];
-
-        $writer = match ($format) {
-            "xlsx" => new Xlsx($spreadsheet),
-            "xls" => new Xls($spreadsheet),
-            "ods" => new Ods($spreadsheet),
-            "html" => new Html($spreadsheet),
-            default => new Xlsx($spreadsheet)
-        };
-
-        // foreach ($this->data as $tableName => $data) {
-        //     $this->createSingleSheet($spreadsheet, $data, $tableName);
-        // }
+        $writer = $this->getWriterFromFormat($format, $spreadsheet);
 
         foreach ($this->tables as $table) {
             if (!\in_array($table->getName(), $exclude)) {
@@ -59,11 +55,37 @@ class ExcelDumper extends Dumper implements DumperInterface
             }
         }
 
-        if ($format === "html") {
+        // Html writer by default only write the first sheet
+        if (get_class($writer) === Html::class) {
             $writer->writeAllSheets();
         }
 
         $writer->save($filepath);
+    }
+
+    private function getFileFormat(string $filepath): string {
+        if (strpos($filepath, ".") === false) {
+            throw new MissingFileFormatException("Invalid filepath : not extension was specified.");
+        }
+
+        $format = explode(".", $filepath);
+        $format = $format[count($format) - 1];
+
+        if (!\in_array($format, self::ACCEPTED_FILE_FORMATS)) {
+            throw new UnknowFormatException("File format '{$format}' isn't supported. Supported formats are : " . implode(", ", self::ACCEPTED_FILE_FORMATS));
+        }
+
+        return $format;
+    }
+
+    private function getWriterFromFormat(string $format, Spreadsheet $spreadsheet): Xlsx|Xls|Ods|Html
+    {
+        return match ($format) {
+            "xlsx" => new Xlsx($spreadsheet),
+            "xls" => new Xls($spreadsheet),
+            "ods" => new Ods($spreadsheet),
+            "html" => new Html($spreadsheet)
+        };
     }
 
     /**
