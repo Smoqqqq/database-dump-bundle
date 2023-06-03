@@ -26,6 +26,8 @@ function dumpDatabase(ManagerRegistry $doctrine, ExcelDumper $dumper): BinaryFil
 ```
 Simply replace ExcelDumper by SqlDumper to create a .sql file instead (don't forget to replace the extension in the filepath !).
 
+If you only want to dump the schema of the database, without its data, you can use the `DumperInterface::dumpSchema` method.
+
 ## Excel dumper
 Please note that when using the excel dumper, the file format is specified by the file extension (string after the last dot). If the file format isn't supported, it will default throw an error
 
