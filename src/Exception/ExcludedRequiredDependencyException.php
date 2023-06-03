@@ -1,6 +1,6 @@
 <?php
 
-namespace Smoq\DatabaseDumpBundle;
+namespace Smoq\DatabaseDumpBundle\Exception;
 
 use Exception;
 
