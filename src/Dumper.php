@@ -12,7 +12,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
-use Smoq\DatabaseDumpBundle\InvalidFilePathException;
+use Smoq\DatabaseDumpBundle\Exception\InvalidFilePathException;
 
 class Dumper
 {

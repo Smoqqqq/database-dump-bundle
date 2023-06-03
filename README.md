@@ -28,3 +28,6 @@ Simply replace ExcelDumper by SqlDumper to create a .sql file instead (don't for
 
 ## Excel dumper
 Please note that when using the excel dumper, the file format is specified by the file extension (string after the last dot). If the file format isn't supported, it will default throw an error
+
+## Sql dumper
+If you try to exclude an entity which another depends upon, without excluding the other one, an error will be thrown, as the generated sql file would be broken otherwise.

@@ -172,7 +172,7 @@ class SqlDumper extends Dumper implements DumperInterface
             $tableName = $this->em->getClassMetadata($dependency["targetEntity"])->getTableName();
 
             if (\in_array($tableName, $exclude, true)) {
-                throw new ExcludedRequiredDependencyException("Table '{$tableName}' was excluded but is a dependency of '{$classMetadata->getTableName()}'. Either include it or exclude tables that depends on it.");
+                throw new ExcludedRequiredDependencyException("Table '{$tableName}' was excluded but is a dependency of '{$classMetadata->getTableName()}'. Either include it or exclude tables that depends on it, such as '{$classMetadata->getTableName()}'.");
             }
 
             // Handle ManyToMany join tables
