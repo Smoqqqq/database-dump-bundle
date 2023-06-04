@@ -66,7 +66,7 @@ class Dumper
 
     /**
      * Gets the db schema
-     * 
+     *
      * @return string[]
      */
     private function getSchema(): array

@@ -4,6 +4,6 @@ namespace Smoq\DatabaseDumpBundle\Exception;
 
 use Exception;
 
-class MissingFileFormatException extends Exception 
+class MissingFileFormatException extends Exception
 {
 }

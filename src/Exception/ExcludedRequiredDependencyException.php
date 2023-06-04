@@ -4,6 +4,6 @@ namespace Smoq\DatabaseDumpBundle\Exception;
 
 use Exception;
 
-class ExcludedRequiredDependencyException extends Exception 
+class ExcludedRequiredDependencyException extends Exception
 {
 }

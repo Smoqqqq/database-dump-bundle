@@ -33,3 +33,6 @@ Please note that when using the excel dumper, the file format is specified by th
 
 ## Sql dumper
 If you try to exclude an entity which another depends upon, without excluding the other one, an error will be thrown, as the generated sql file would be broken otherwise.
+
+## Contribution
+Contribution is more than welcome, I am no SQL expert and this bundle needs extra work, so please come in !

@@ -20,7 +20,6 @@ use Smoq\DatabaseDumpBundle\Exception\UnknowFormatException;
 
 class ExcelDumper extends Dumper implements DumperInterface
 {
-
     public const ACCEPTED_FILE_FORMATS = ["xlsx", "xls", "ods", "html"];
 
     /**
@@ -125,7 +124,7 @@ class ExcelDumper extends Dumper implements DumperInterface
 
     /**
      * creates a single sheet containing a table
-     * 
+     *
      * @param SpreadSheet $spreadsheet
      * @param Table[] $table
      * @param string $sheetName

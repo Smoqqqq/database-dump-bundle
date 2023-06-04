@@ -6,7 +6,7 @@ interface DumperInterface
 {
     /**
      * Dump the entire database
-     * 
+     *
      * @param string $filepath
      * @param string[] $exclude
      * @param bool $overwrite
@@ -15,7 +15,7 @@ interface DumperInterface
 
     /**
      * Dump only the schema
-     * 
+     *
      * @param string $filepath
      * @param string[] $exclude
      * @param bool $overwrite

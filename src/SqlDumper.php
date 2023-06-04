@@ -29,7 +29,7 @@ class SqlDumper extends Dumper implements DumperInterface
     /**
      * Generates the .sql file for creating and filling the database with data,
      * and saves it to the given filepath
-     * 
+     *
      * @param string $filepath the path to save the file to. The given file extension MUST be the same as the $format param
      * @param string[] $exclude the tables to exclude from the dump
      * @param bool $overwrite weither or not to overwrite if the file exists
@@ -52,7 +52,7 @@ class SqlDumper extends Dumper implements DumperInterface
     /**
      * Generates the .sql file for creating the database schema,
      * and saves it to the given filepath
-     * 
+     *
      * @param string $filepath the path to save the file to. The given file extension MUST be the same as the $format param
      * @param bool $overwrite weither or not to overwrite if the file exists
      */
